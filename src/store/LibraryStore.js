@@ -1,63 +1,49 @@
-import Storage from 'react-native-storage'
-import AsyncStorage from '@react-native-community/async-storage'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { uniqBy } from 'lodash'
-import { makeAutoObservable } from 'mobx'
+import { flow, makeAutoObservable } from 'mobx'
 
 class LibraryStore {
   KEY = 'items'
 
-  storage = null
-
   items = []
 
   constructor() {
-    this.storage = new Storage({
-      storageBackend: AsyncStorage,
+    makeAutoObservable(this, {
+      getItems: flow,
+      removeItem: flow,
     })
-    this.initialize()
-
-    makeAutoObservable(this)
   }
 
-  *initialize() {
-    const key = this.KEY
-
+  *getItems() {
     try {
-      const items = yield this.storage.load({ key })
+      const rawValue = yield AsyncStorage.getItem(this.KEY)
+      const items = JSON.parse(rawValue || '[]')
 
       this.items = items
-    } catch (error) {
-      if (error.name === 'NotFoundError') {
-        this.storage.save({ key, data: [] })
-      }
-    }
-  }
-
-  *fetchItems() {
-    try {
-      const items = yield this.storage.load({ key: this.KEY })
-
-      this.items = items
-
-      return items
     } catch (error) {
       console.error(error)
     }
   }
 
   *addItem(item) {
-    const key = this.KEY
-
     try {
-      const prev = yield this.storage.load({ key })
-      const merged = uniqBy([...prev, item], 'data')
+      const merged = uniqBy([...this.items, item], 'data')
 
-      yield this.storage.save({
-        key,
-        data: merged,
-      })
+      yield AsyncStorage.setItem(this.KEY, JSON.stringify(merged))
 
       this.items = merged
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  *removeItem(id) {
+    try {
+      const filtered = this.items.filter((item) => item.data !== id)
+
+      yield AsyncStorage.setItem(this.KEY, JSON.stringify(filtered))
+
+      this.items = filtered
     } catch (error) {
       console.error(error)
     }

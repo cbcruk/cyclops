@@ -19,6 +19,7 @@ const Books = observer(() => {
             key={item.data}
             title={item.data}
             description={item.type}
+            onPress={() => library.removeItem(item.data)}
           />
         ))}
       </List.Section>
