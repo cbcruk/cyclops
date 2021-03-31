@@ -6,7 +6,7 @@ import { observer, useLocalObservable } from 'mobx-react-lite'
 import { RootContext } from './Provider'
 
 const Scan = observer(() => {
-  const { library } = useContext(RootContext)
+  const { permission, library } = useContext(RootContext)
   const scanObservable = useLocalObservable(() => ({
     scanned: false,
     target: null,
@@ -22,10 +22,12 @@ const Scan = observer(() => {
 
   return (
     <View style={styles.container}>
-      <BarCodeScanner
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        style={StyleSheet.absoluteFill}
-      />
+      {permission.hasPermission && (
+        <BarCodeScanner
+          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+          style={StyleSheet.absoluteFill}
+        />
+      )}
       <Snackbar
         visible={scanned}
         duration={Infinity}
