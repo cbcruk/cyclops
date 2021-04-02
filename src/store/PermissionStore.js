@@ -1,5 +1,6 @@
 import { BarCodeScanner } from 'expo-barcode-scanner'
 import { makeAutoObservable } from 'mobx'
+import { Platform } from 'react-native'
 
 class PermissionStore {
   status = null
@@ -10,9 +11,11 @@ class PermissionStore {
   }
 
   *initialize() {
-    const { status } = yield BarCodeScanner.requestPermissionsAsync()
+    if (Platform.OS !== 'web') {
+      const { status } = yield BarCodeScanner.requestPermissionsAsync()
 
-    this.status = status
+      this.status = status
+    }
   }
 
   get hasPermission() {

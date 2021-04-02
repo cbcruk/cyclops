@@ -1,30 +1,17 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { StyleSheet, SafeAreaView, StatusBar, LogBox } from 'react-native'
-import { observer } from 'mobx-react-lite'
 import BottomNavigation from './src/components/BottomNavigation'
-import Provider, { RootContext } from './src/components/Provider'
+import Provider from './src/components/Provider'
 
-LogBox.ignoreLogs(['Remote debugger'])
-
-const Child = observer(() => {
-  const { permission } = useContext(RootContext)
-
-  if (!permission.hasPermission) {
-    return null
-  }
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar />
-      <BottomNavigation />
-    </SafeAreaView>
-  )
-})
+LogBox?.ignoreLogs(['Remote debugger'])
 
 function App() {
   return (
     <Provider>
-      <Child />
+      <SafeAreaView style={styles.container}>
+        <StatusBar />
+        <BottomNavigation />
+      </SafeAreaView>
     </Provider>
   )
 }
